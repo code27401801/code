@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マップ選択ルーレット</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        #wheel {
+            margin: 0 auto;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 5px solid #333;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .segment {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            clip-path: polygon(50% 50%, 100% 0, 100% 100%);
+            transform-origin: 50% 50%;
+        }
+
+        #spinButton, #removeButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #removeButton {
+            background-color: #dc3545;
+        }
+
+        #mapSelect {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>マップ選択ルーレット</h1>
+    <select id="mapSelect">
+        <option value="軍需工場">軍需工場</option>
+        <option value="聖心病院">聖心病院</option>
+        <option value="赤の教会">赤の教会</option>
+        <option value="湖景村">湖景村</option>
+        <option value="月の河公園">月の河公園</option>
+        <option value="レオの思い出">レオの思い出</option>
+        <option value="永眠町">永眠町</option>
+        <option value="中華街">中華街</option>
+        <option value="罪の森">罪の森</option>
+    </select>
+    <button id="removeButton">選択したマップを削除</button>
+    <div id="wheel"></div>
+    <button id="spinButton">回す</button>
+
+    <script>const wheel = document.getElementById("wheel");
+    const spinButton = document.getElementById("spinButton");
+    const removeButton = document.getElementById("removeButton");
+    const mapSelect = document.getElementById("mapSelect");
+
+    // マップリスト
+    let maps = [
+      "軍需工場", "聖心病院", "赤の教会", "湖景村", "月の河公園", "レオの思い出", "永眠町", "中華街", "罪の森"
+    ];
+
+    // ルーレットを更新する関数
+    function updateWheel() {
+      wheel.innerHTML = "";
+      const segmentAngle = 360 / maps.length;
+      maps.forEach((map, index) => {
+        const segmentDiv = document.createElement("div");
+        segmentDiv.className = "segment";
+        segmentDiv.style.transform = `rotate(${index * segmentAngle}deg)`;
+        segmentDiv.style.backgroundColor = index % 2 === 0 ? "#f4a261" : "#e76f51";
+        const text = document.createElement("div");
+        text.style.position = "absolute";
+        text.style.top = "50%";
+        text.style.left = "50%";
+        text.style.transform = `translate(-50%, -50%) rotate(${-index * segmentAngle}deg)`;
+        text.style.color = "white";
+        text.style.fontSize = "18px";
+        text.innerText = map;
+        segmentDiv.appendChild(text);
+        wheel.appendChild(segmentDiv);
+      });
+    }
+
+    // 初期ルーレット描画
+    updateWheel();
+
+    // 選択したマップを削除
+    removeButton.addEventListener("click", () => {
+      const selectedMap = mapSelect.value;
+      const index = maps.indexOf(selectedMap);
+      if (index !== -1) {
+        maps.splice(index, 1);
+        alert(`削除されたマップ: ${selectedMap}`);
+        updateWheel();
+        const options = mapSelect.options;
+        for (let i = 0; i < options.length; i++) {
+          if (options[i].value === selectedMap) {
+            mapSelect.remove(i);
+            break;
+          }
+        }
+      } else {
+        alert("選択したマップは既に削除されています。");
+      }
+    });
+
+    // ルーレットの回転処理
+    let isSpinning = false;
+    spinButton.addEventListener("click", () => {
+      if (isSpinning) return;
+      isSpinning = true;
+
+      const segmentAngle = 360 / maps.length;
+      const spinDegrees = Math.random() * 360 + 3600; // 最低10回転
+      const selectedIndex = Math.floor((spinDegrees % 360) / segmentAngle);
+
+      wheel.style.transition = "transform 3s ease-out";
+      wheel.style.transform = `rotate(${spinDegrees}deg)`;
+
+      setTimeout(() => {
+        alert(`選ばれたマップ: ${maps[selectedIndex]}`);
+        isSpinning = false;
+        wheel.style.transition = "none";
+        wheel.style.transform = `rotate(${(spinDegrees % 360)}deg)`;
+      }, 3000);
+    });</script>
+</body>
+</html>
